@@ -1,0 +1,44 @@
+# Step 1: Calculate the total duration of all .mp4 files and determine the speed factor
+total_duration=0
+for file in *.mp4; do
+    # Get the duration of each video
+    duration=$(ffprobe -v error -select_streams v:0 -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$file")
+    echo "Duration of $file: $duration seconds"  # Debugging: check if durations are correct
+    total_duration=$(echo "$total_duration + $duration" | bc)
+done
+
+# Calculate speed factor to make the final video 40 seconds long
+speed_factor=$(echo "$total_duration / 40" | bc -l)
+echo "Total Duration: $total_duration seconds"
+echo "Speed Factor: $speed_factor"
+
+# Step 2: Speed up the videos individually
+mkdir -p speed_up_videos  # Create a directory to store the sped-up videos
+for file in *.mp4; do
+    output_file="speed_up_videos/speed_up_${file}"
+    # Speed up the video and save it in the new folder
+    ffmpeg -i "$file" -vf "setpts=PTS/$speed_factor" -an "$output_file"
+    echo "Processed $file -> $output_file"
+done
+
+# Step 3: Create a file list for the sped-up videos
+for file in speed_up_videos/*.mp4; do
+    echo "file '$file'" >> speed_up_file_list.txt
+done
+
+# Step 4: Combine all sped-up videos
+ffmpeg -f concat -safe 0 -i speed_up_file_list.txt -r 30 -c:v libx264 -crf 23 -preset fast -an video_no_audio.mp4
+
+# Step 5: Create a 5-second YouTube Shorts video from the image
+image_path="C:\\Users\\SMA Bari\\Videos\\image.png"  # Specify the path to your PNG image
+ffmpeg -loop 1 -i "$image_path" -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" -c:v libx264 -t 5 -r 30 -pix_fmt yuv420p image_video.mp4
+
+# Step 6: Concatenate the 40-second video with the 5-second image video
+echo "file 'video_no_audio.mp4'" > final_file_list.txt
+echo "file 'image_video.mp4'" >> final_file_list.txt
+ffmpeg -f concat -safe 0 -i final_file_list.txt -c copy combined_video_no_audio.mp4
+
+# Step 7: Add audio to the combined 45-second video
+audio_path="C:\\Users\\SMA Bari\\Videos\\music5.mp3"  # Specify the audio file path
+ffmpeg -i combined_video_no_audio.mp4 -i "$audio_path" -shortest -c:v copy -c:a aac -b:a 192k final_video.mp4
+rm final_file_list.txt

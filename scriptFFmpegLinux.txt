@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# Step 1: Calculate the total duration of all .mkv files and determine the speed factor
+total_duration=0
+
+for file in *.mkv; do
+    duration=$(ffprobe -v error -select_streams v:0 -show_entries format=duration \
+               -of default=noprint_wrappers=1:nokey=1 "$file")
+    echo "Duration of $file: $duration seconds"
+    total_duration=$(echo "$total_duration + $duration" | bc)
+done
+
+# Step 2: Calculate speed factor to fit into 40 seconds
+speed_factor=$(echo "$total_duration / 40" | bc -l)
+echo "Total Duration: $total_duration seconds"
+echo "Speed Factor: $speed_factor"
+
+# Step 3: Speed up each video
+mkdir -p speed_up_videos
+
+for file in *.mkv; do
+    output_file="speed_up_videos/speed_up_${file}"
+    ffmpeg -i "$file" -vf "setpts=PTS/$speed_factor" -an "$output_file"
+    echo "Processed $file -> $output_file"
+done
+
+# Step 4: Create list for concat
+> speed_up_file_list.txt
+for file in speed_up_videos/*.mkv; do
+    echo "file '$file'" >> speed_up_file_list.txt
+done
+
+# Step 5: Combine all sped-up videos
+ffmpeg -f concat -safe 0 -i speed_up_file_list.txt -r 30 \
+       -c:v libx264 -crf 23 -preset fast -an video_no_audio.mkv
+
+# Step 6: Create a 5s image video (Shorts style)
+image_path="/home/$USER/Videos/image.png"
+ffmpeg -loop 1 -i "$image_path" \
+       -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" \
+       -c:v libx264 -t 5 -r 30 -pix_fmt yuv420p image_video.mkv
+
+# Step 7: Merge video + image
+echo "file 'video_no_audio.mkv'" > final_file_list.txt
+echo "file 'image_video.mkv'" >> final_file_list.txt
+
+ffmpeg -f concat -safe 0 -i final_file_list.txt -c copy combined_video_no_audio.mkv
+
+# Step 8: Add audio
+audio_path="/home/$USER/Videos/music23.mp3"
+ffmpeg -i combined_video_no_audio.mkv -i "$audio_path" -shortest \
+       -c:v copy -c:a aac -b:a 192k final_video.mkv
+
+# Step 9: Convert final MKV to MP4 (container-only, no re-encode)
+ffmpeg -i final_video.mkv -c copy final_video.mp4
+
+# Step 10: Clean up
+rm final_file_list.txt speed_up_file_list.txt
+
+echo "🎉 Final MP4 created: final_video.mp4"

@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Step 1: Calculate the total duration of all .mp4 files and determine the speed factor
+total_duration=0
+
+for file in *.mp4; do
+    # Get the duration of each video
+    duration=$(ffprobe -v error -select_streams v:0 -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$file")
+    echo "Duration of $file: $duration seconds"  # Debugging: check if durations are correct
+    total_duration=$(echo "$total_duration + $duration" | bc)
+done
+
+# Calculate speed factor to make the final video 40 seconds long
+speed_factor=$(echo "$total_duration / 350" | bc -l)
+
+echo "Total Duration: $total_duration seconds"
+echo "Speed Factor: $speed_factor"
+
+# Step 2: Speed up the videos individually
+mkdir -p sped_up_videos  # Create a directory to store the sped-up videos
+
+for file in *.mp4; do
+    output_file="sped_up_videos/sped_up_${file}"
+    # Speed up the video and save it in the new folder
+    ffmpeg -i "$file" -vf "setpts=PTS/$speed_factor" -an "$output_file"
+    echo "Processed $file -> $output_file"
+done
+
+# Step 3: Create a file list for the sped-up videos
+rm -f sped_up_file_list.txt  # Remove any old list
+
+for file in sped_up_videos/*.mp4; do
+    echo "file '$file'" >> sped_up_file_list.txt
+done
+
+# Step 4: Combine all sped-up videos
+ffmpeg -f concat -safe 0 -i sped_up_file_list.txt -r 30 -c:v libx264 -crf 23 -preset fast -an video_no_audio.mp4
+
+# Step 5: Clean up temporary files
+rm sped_up_file_list.txt
+rmdir sped_up_videos
