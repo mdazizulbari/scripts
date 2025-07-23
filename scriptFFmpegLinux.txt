@@ -47,7 +47,7 @@ echo "file 'image_video.mkv'" >> final_file_list.txt
 ffmpeg -f concat -safe 0 -i final_file_list.txt -c copy combined_video_no_audio.mkv
 
 # Step 8: Add audio
-audio_path="/home/$USER/Videos/music23.mp3"
+audio_path="/home/$USER/Videos/music24.mp3"
 ffmpeg -i combined_video_no_audio.mkv -i "$audio_path" -shortest \
        -c:v copy -c:a aac -b:a 192k final_video.mkv
 
