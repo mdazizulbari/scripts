@@ -1,0 +1,15 @@
+#speed up any video to fit 40s duration
+
+# Input and output filenames
+input="video_no_audio14.mkv"
+output="video_no_audio1.mkv"
+
+# Get original duration in seconds using ffprobe
+duration=$(ffprobe -v error -show_entries format=duration \
+           -of default=noprint_wrappers=1:nokey=1 "$input")
+
+# Calculate speed factor
+speed_factor=$(echo "$duration / 40" | bc -l)
+
+# Apply speed-up using FFmpeg
+ffmpeg -i "$input" -filter:v "setpts=PTS/$speed_factor" -an "$output"

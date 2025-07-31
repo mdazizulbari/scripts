@@ -1,0 +1,1 @@
+gnome-terminal -- watch -n 2 --no-title 'free -h | awk "/Mem:/ {mem=\$7} /Swap:/ {swap=\$4} END {print \"Mem: available \" mem \", Swap: free \" swap}"'
