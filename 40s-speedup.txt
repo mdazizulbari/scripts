@@ -1,8 +1,8 @@
 #speed up any video to fit 40s duration
 
 # Input and output filenames
-input="video_no_audio14.mkv"
-output="video_no_audio1.mkv"
+input="videoplayback.mp4"
+output="video_no_audio.mp4"
 
 # Get original duration in seconds using ffprobe
 duration=$(ffprobe -v error -show_entries format=duration \
