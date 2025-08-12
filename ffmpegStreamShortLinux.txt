@@ -23,11 +23,11 @@ ffmpeg -i "video_no_audio_speed.mp4" \
   -c:a copy "video_no_audio.mp4"
 
 # Rotating the ScreenShort
-ffmpeg -i "/home/$USER/Videos/pic.png" -vf "transpose=1" "/home/$USER/Videos/image.png"
+ffmpeg -i "pic.png" -vf "transpose=1" "image.png"
 
 
 # Step 3 Create a 5s image video (Shorts style)
-image_path="/home/$USER/Videos/image.png"
+image_path="image.png"
 ffmpeg -loop 1 -i "$image_path" \
        -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" \
        -c:v libx264 -t 5 -r 30 -pix_fmt yuv420p image_video.mp4
@@ -39,7 +39,7 @@ echo "file 'image_video.mp4'" >> final_file_list.txt
 ffmpeg -f concat -safe 0 -i final_file_list.txt -c copy combined_video_no_audio.mp4
 
 # Step 5: Add audio
-audio_path="/home/$USER/Videos/music26.mp3"
+audio_path="/home/$USER/Videos/music28.mp3"
 ffmpeg -i combined_video_no_audio.mp4 -i "$audio_path" -shortest \
        -c:v copy -c:a aac -b:a 192k final_video.mp4
 
