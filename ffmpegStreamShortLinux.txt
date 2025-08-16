@@ -39,8 +39,16 @@ echo "file 'image_video.mp4'" >> final_file_list.txt
 ffmpeg -f concat -safe 0 -i final_file_list.txt -c copy combined_video_no_audio.mp4
 
 # Step 5: Add audio
-audio_path="/home/$USER/Videos/music28.mp3"
+audio_path="/home/$USER/Videos/music7.mp3"
 ffmpeg -i combined_video_no_audio.mp4 -i "$audio_path" -shortest \
        -c:v copy -c:a aac -b:a 192k final_video.mp4
 
 echo "🎉 Final MP4 created: final_video.mp4"
+
+# Step 6: Create vertical version of final video (90° clockwise)
+ffmpeg -i final_video.mp4 \
+  -vf "transpose=2" \
+  -c:a copy final_video_vertical.mp4
+
+echo "📱 Vertical MP4 created: final_video_vertical.mp4"
+
