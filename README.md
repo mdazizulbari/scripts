@@ -1,1 +1,1 @@
-# The place where I keep all my frequently use scripts
+# The place where I keep all my frequently used scripts
