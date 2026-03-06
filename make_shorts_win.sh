@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# runcommand 👇
 # bash make_shorts_win.sh 
 
 # ============================================================
@@ -13,7 +14,7 @@ VIDEO_DIR="C:/Users/SMA Desk/Videos/Today"   # CHANGED: Windows path with forwar
 input="videoplayback.mp4"
 output="video_no_audio_speed.mp4"
 image_path="$VIDEO_DIR/pic.png"              # CHANGED: full path needed on Windows
-audio_path="C:/Users/SMA Desk/Videos/music12.mp3"  # CHANGED: Windows path
+audio_path="C:/Users/SMA Desk/Videos/music13.mp3"  # CHANGED: Windows path
 # ────────────────────────────────────────────────────────────
 
 # CHANGED: cd into video dir so all relative file refs work
