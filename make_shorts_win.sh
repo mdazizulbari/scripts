@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# bash make_shorts_win.sh 
+
 # ============================================================
 #  YouTube Shorts Builder — Windows Git Bash
 #  Logic: identical to Linux script (single video workflow)
@@ -11,7 +13,7 @@ VIDEO_DIR="C:/Users/SMA Desk/Videos/Today"   # CHANGED: Windows path with forwar
 input="videoplayback.mp4"
 output="video_no_audio_speed.mp4"
 image_path="$VIDEO_DIR/pic.png"              # CHANGED: full path needed on Windows
-audio_path="C:/Users/SMA Desk/Videos/music11.mp3"  # CHANGED: Windows path
+audio_path="C:/Users/SMA Desk/Videos/music12.mp3"  # CHANGED: Windows path
 # ────────────────────────────────────────────────────────────
 
 # CHANGED: cd into video dir so all relative file refs work
