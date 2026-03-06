@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# runcommand 👇
+# run command 👇
 # bash make_shorts_win.sh 
 
 # ============================================================
@@ -10,14 +10,13 @@
 # ============================================================
 
 # ── CONFIG ──────────────────────────────────────────────────
-VIDEO_DIR="C:/Users/SMA Desk/Videos/Today"   # CHANGED: Windows path with forward slashes
+VIDEO_DIR="C:/Users/SMA Desk/Videos/Today"
 input="videoplayback.mp4"
 output="video_no_audio_speed.mp4"
-image_path="$VIDEO_DIR/pic.png"              # CHANGED: full path needed on Windows
-audio_path="C:/Users/SMA Desk/Videos/music13.mp3"  # CHANGED: Windows path
+image_path="$VIDEO_DIR/pic.png"
+audio_path="C:/Users/SMA Desk/Videos/music13.mp3"
 # ────────────────────────────────────────────────────────────
 
-# CHANGED: cd into video dir so all relative file refs work
 cd "$VIDEO_DIR" || { echo "❌ Cannot find VIDEO_DIR: $VIDEO_DIR"; exit 1; }
 
 # ── Step 1: Make the video 40s long ──────────────────────────
@@ -28,19 +27,20 @@ ffmpeg -y -i "$input" -filter:v "setpts=PTS/$speed_factor" -an "$output"
 
 # ── Step 2: Rotate 90° + scale to 1080x1920 ──────────────────
 ffmpeg -y -i "$output" \
-  -vf "transpose=1,scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" \
+  -vf 'transpose=1,scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2' \
   -c:a copy "video_no_audio.mp4"
+# CHANGED: double quotes → single quotes around -vf value (Git Bash treats parentheses in double quotes as subshell)
 
 # ── Step 2b: Rotate the thumbnail ────────────────────────────
 ffmpeg -y -i "$image_path" -vf "transpose=1" "image.png"
 
 # ── Step 3: Create 5s image video ────────────────────────────
 ffmpeg -y -loop 1 -i "image.png" \
-       -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" \
+       -vf 'scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2' \
        -c:v libx264 -t 5 -r 30 -pix_fmt yuv420p image_video.mp4
+# CHANGED: same fix here
 
 # ── Step 4: Merge video + image ──────────────────────────────
-# CHANGED: explicitly clearing and writing concat list to avoid stale entries
 > final_file_list.txt
 echo "file 'video_no_audio.mp4'" >> final_file_list.txt
 echo "file 'image_video.mp4'"    >> final_file_list.txt
