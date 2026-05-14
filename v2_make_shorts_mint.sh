@@ -1,20 +1,20 @@
 #!/bin/bash
 
 # run command 👇
-# bash make_shorts_win.sh 
+# bash v2_make_shorts_mint.sh
 
 # ============================================================
-#  YouTube Shorts Builder — Windows Git Bash
-#  Logic: identical to Linux script (single video workflow)
-#  Syntax: Windows-compatible paths & temp file handling
+#  YouTube Shorts Builder — Linux Mint
+#  Logic: ported from Windows Git Bash version
+#  Syntax: native Linux bash (no Git Bash workarounds needed)
 # ============================================================
 
 # ── CONFIG ──────────────────────────────────────────────────
-VIDEO_DIR="C:/Users/SMA Desk/Videos/Today"
+VIDEO_DIR="$HOME/Videos/Today"          # CHANGED: C:/Users/... → $HOME/Videos/...
 input="videoplayback.mp4"
 output="video_no_audio_speed.mp4"
 image_path="$VIDEO_DIR/pic.png"
-audio_path="C:/Users/SMA Desk/Videos/music13.mp3"
+audio_path="$HOME/Videos/music15.mp3"  # CHANGED: Windows path → Linux $HOME path
 # ────────────────────────────────────────────────────────────
 
 cd "$VIDEO_DIR" || { echo "❌ Cannot find VIDEO_DIR: $VIDEO_DIR"; exit 1; }
@@ -27,18 +27,18 @@ ffmpeg -y -i "$input" -filter:v "setpts=PTS/$speed_factor" -an "$output"
 
 # ── Step 2: Rotate 90° + scale to 1080x1920 ──────────────────
 ffmpeg -y -i "$output" \
-  -vf 'transpose=1,scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2' \
+  -vf "transpose=1,scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" \
   -c:a copy "video_no_audio.mp4"
-# CHANGED: double quotes → single quotes around -vf value (Git Bash treats parentheses in double quotes as subshell)
+# CHANGED: single quotes → double quotes (Git Bash needed single quotes to avoid subshell issue; native Linux bash is fine with double quotes)
 
 # ── Step 2b: Rotate the thumbnail ────────────────────────────
 ffmpeg -y -i "$image_path" -vf "transpose=1" "image.png"
 
 # ── Step 3: Create 5s image video ────────────────────────────
 ffmpeg -y -loop 1 -i "image.png" \
-       -vf 'scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2' \
+       -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" \
        -c:v libx264 -t 5 -r 30 -pix_fmt yuv420p image_video.mp4
-# CHANGED: same fix here
+# CHANGED: single quotes → double quotes (same reason as Step 2)
 
 # ── Step 4: Merge video + image ──────────────────────────────
 > final_file_list.txt
