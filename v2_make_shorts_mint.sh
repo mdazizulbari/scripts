@@ -14,10 +14,9 @@ VIDEO_DIR="$HOME/Videos/Today"
 input="videoplayback.mp4"
 output="video_no_audio_speed.mp4"
 image_path="$VIDEO_DIR/pic.png"
-audio_path="$HOME/Videos/music4.mp3"
+audio_path="$HOME/Videos/music12.mp3"
 # ────────────────────────────────────────────────────────────
  
-# CHANGED: added helper — checks if a file exists and asks skip/recreate
 # returns 0 = skip this step, 1 = run this step
 ask_skip() {
     local file="$1"
@@ -34,7 +33,6 @@ ask_skip() {
 cd "$VIDEO_DIR" || { echo "❌ Cannot find VIDEO_DIR: $VIDEO_DIR"; exit 1; }
  
 # ── Step 1: Make the video 40s long ──────────────────────────
-# CHANGED: removed -y, wrapped with ask_skip
 ask_skip "$output" || {
     duration=$(ffprobe -v error -show_entries format=duration \
                -of default=noprint_wrappers=1:nokey=1 "$input")
@@ -43,7 +41,6 @@ ask_skip "$output" || {
 }
  
 # ── Step 2: Rotate 90° + scale to 1080x1920 ──────────────────
-# CHANGED: removed -y, wrapped with ask_skip
 ask_skip "video_no_audio.mp4" || {
     ffmpeg -i "$output" \
       -vf "transpose=1,scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" \
@@ -51,13 +48,11 @@ ask_skip "video_no_audio.mp4" || {
 }
  
 # ── Step 2b: Rotate the thumbnail ────────────────────────────
-# CHANGED: removed -y, wrapped with ask_skip
 ask_skip "image.png" || {
     ffmpeg -i "$image_path" -vf "transpose=1" "image.png"
 }
  
 # ── Step 3: Create 5s image video ────────────────────────────
-# CHANGED: removed -y, wrapped with ask_skip
 ask_skip "image_video.mp4" || {
     ffmpeg -loop 1 -i "image.png" \
            -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" \
@@ -65,7 +60,6 @@ ask_skip "image_video.mp4" || {
 }
  
 # ── Step 4: Merge video + image ──────────────────────────────
-# CHANGED: removed -y, wrapped with ask_skip
 ask_skip "combined_video_no_audio.mp4" || {
     > final_file_list.txt
     echo "file 'video_no_audio.mp4'" >> final_file_list.txt
@@ -74,7 +68,6 @@ ask_skip "combined_video_no_audio.mp4" || {
 }
  
 # ── Step 5: Add audio ─────────────────────────────────────────
-# CHANGED: removed -y, wrapped with ask_skip
 ask_skip "final_video.mp4" || {
     ffmpeg -i combined_video_no_audio.mp4 -i "$audio_path" -shortest \
            -c:v copy -c:a aac -b:a 192k final_video.mp4
@@ -82,7 +75,6 @@ ask_skip "final_video.mp4" || {
 echo "🎉 Final MP4 created: final_video.mp4"
  
 # ── Step 6: Vertical version ──────────────────────────────────
-# CHANGED: removed -y, wrapped with ask_skip
 ask_skip "final_video_vertical.mp4" || {
     ffmpeg -i final_video.mp4 \
       -vf "transpose=2" \
