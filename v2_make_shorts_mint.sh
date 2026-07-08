@@ -14,7 +14,7 @@ VIDEO_DIR="$HOME/Videos/Today"
 input="videoplayback.mp4"
 output="video_no_audio_speed.mp4"
 image_path="$VIDEO_DIR/pic.png"
-audio_path="$HOME/Videos/music1.mp3"
+audio_path="$HOME/Videos/music11.mp3"
 # ────────────────────────────────────────────────────────────
  
 # returns 0 = skip this step, 1 = run this step
