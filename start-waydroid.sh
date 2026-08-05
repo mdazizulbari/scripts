@@ -6,6 +6,9 @@
 # Description: Launches Waydroid inside a locked Weston container on X11.
 # ==============================================================================
 
+# Cleanup lingering processes when exiting
+trap 'pkill -9 -f weston 2>/dev/null; waydroid session stop 2>/dev/null' EXIT INT TERM
+
 # [1] Terminate stale sessions and socket files
 waydroid session stop 2>/dev/null
 pkill -9 -f weston 2>/dev/null
@@ -17,7 +20,7 @@ sudo sysctl -w net.ipv4.ip_forward=1 >/dev/null
 sudo systemctl restart waydroid-container
 sleep 2
 
-# [3] Set display environment variables
+# [3] Set display environment variables (X11 only)
 unset WAYLAND_DISPLAY
 export DISPLAY=${DISPLAY:-:0}
 export XDG_RUNTIME_DIR="/run/user/$UID"
@@ -37,13 +40,17 @@ while [ ! -S "/run/user/$UID/wayland-0" ]; do
     fi
 done
 
-export WAYLAND_DISPLAY=wayland-0
-
-# [6] Inject fallback DNS and clipboard properties
+# [6] Inject DNS configuration
 waydroid prop set net.dns1 1.1.1.1 2>/dev/null
 waydroid prop set net.dns2 8.8.8.8 2>/dev/null
-waydroid prop set persist.waydroid.clipboard true 2>/dev/null
 
-# [7] Launch Waydroid UI
+# [7] Hide Waydroid Android apps from the PC app menu
+for file in ~/.local/share/applications/waydroid.*.desktop; do
+    if [ -f "$file" ] && ! grep -q "NoDisplay=true" "$file"; then
+        sed -i '/^\[Desktop Entry\]/a NoDisplay=true' "$file"
+    fi
+done
+
+# [8] Launch Waydroid UI with scoped Wayland variable
 echo "Launching Waydroid..."
-waydroid show-full-ui
+WAYLAND_DISPLAY=wayland-0 waydroid show-full-ui
