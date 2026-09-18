@@ -10,11 +10,11 @@
 # ============================================================
 
 # ── CONFIG ──────────────────────────────────────────────────
-VIDEO_DIR="C:/Users/SMA Desk/Videos/Today"
+VIDEO_DIR="C:/Users/SMA Bari/Videos/Today"
 input="videoplayback.mp4"
 output="video_no_audio_speed.mp4"
 image_path="$VIDEO_DIR/pic.png"
-audio_path="C:/Users/SMA Desk/Videos/music14.mp3"
+audio_path="C:/Users/SMA Bari/Videos/music.mp3"
 # ────────────────────────────────────────────────────────────
 
 cd "$VIDEO_DIR" || { echo "❌ Cannot find VIDEO_DIR: $VIDEO_DIR"; exit 1; }
@@ -22,7 +22,7 @@ cd "$VIDEO_DIR" || { echo "❌ Cannot find VIDEO_DIR: $VIDEO_DIR"; exit 1; }
 # ── Step 1: Make the video 40s long ──────────────────────────
 duration=$(ffprobe -v error -show_entries format=duration \
            -of default=noprint_wrappers=1:nokey=1 "$input")
-speed_factor=$(echo "$duration / 40" | bc -l)
+speed_factor=$(awk "BEGIN {print $duration / 40}")
 ffmpeg -y -i "$input" -filter:v "setpts=PTS/$speed_factor" -an "$output"
 
 # ── Step 2: Rotate 90° + scale to 1080x1920 ──────────────────
