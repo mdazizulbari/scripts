@@ -19,10 +19,10 @@ audio_path="C:/Users/SMA Bari/Videos/music.mp3"
 
 cd "$VIDEO_DIR" || { echo "❌ Cannot find VIDEO_DIR: $VIDEO_DIR"; exit 1; }
 
-# ── Step 1: Make the video 40s long ──────────────────────────
+# ── Step 1: Make the video 20s long ──────────────────────────
 duration=$(ffprobe -v error -show_entries format=duration \
            -of default=noprint_wrappers=1:nokey=1 "$input")
-speed_factor=$(awk "BEGIN {print $duration / 40}")
+speed_factor=$(awk "BEGIN {print $duration / 20}")
 ffmpeg -y -i "$input" -filter:v "setpts=PTS/$speed_factor" -an "$output"
 
 # ── Step 2: Rotate 90° + scale to 1080x1920 ──────────────────
