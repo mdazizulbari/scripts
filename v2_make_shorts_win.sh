@@ -14,7 +14,7 @@ VIDEO_DIR="C:/Users/SMA Bari/Videos/Today"
 input="videoplayback.mp4"
 output="video_no_audio_speed.mp4"
 image_path="$VIDEO_DIR/pic.png"
-audio_path="C:/Users/SMA Bari/Videos/music.mp3"
+audio_path="C:/Users/SMA Bari/Videos/music4.mp3"
 # ────────────────────────────────────────────────────────────
 
 cd "$VIDEO_DIR" || { echo "❌ Cannot find VIDEO_DIR: $VIDEO_DIR"; exit 1; }
